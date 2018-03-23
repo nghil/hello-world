@@ -1,0 +1,27 @@
+SELECT * FROM pg_user_info;
+
+CREATE USER schemauser WITH PASSWORD 'abcD1234'; -- IN GROUP <groupname>
+CREATE USER schemawriter WITH PASSWORD 'abcD1234';
+CREATE USER schemaowner WITH PASSWORD 'abcD1234';
+
+CREATE GROUP import_readers WITH USER schemauser;
+CREATE GROUP import_writers WITH USER schemawriter;
+CREATE GROUP import_owners WITH USER schemaowner;
+--ALTER GROUP ro_group ADD USER ro_user;
+
+GRANT USAGE ON SCHEMA import TO GROUP import_readers;
+GRANT SELECT ON ALL TABLES IN SCHEMA import TO GROUP import_readers;
+
+GRANT USAGE ON SCHEMA import TO GROUP import_writers;
+GRANT INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA import TO GROUP import_writers;
+
+GRANT USAGE ON SCHEMA import TO GROUP import_owners;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA import TO GROUP import_owners;
+GRANT ALL PRIVILEGES ON SCHEMA import TO GROUP import_owners;
+
+-- have to do this for all users that can create tables
+--ALTER DEFAULT PRIVILEGES FOR USER master IN SCHEMA import GRANT SELECT ON TABLES TO GROUP import_readers;
+ALTER DEFAULT PRIVILEGES FOR USER schemaowner IN SCHEMA import GRANT SELECT ON TABLES TO GROUP import_readers;
+ALTER DEFAULT PRIVILEGES FOR USER schemaowner IN SCHEMA import GRANT SELECT ON TABLES TO GROUP import_writers;
+ALTER DEFAULT PRIVILEGES FOR USER schemaowner IN SCHEMA import GRANT INSERT, UPDATE, DELETE ON TABLES TO GROUP import_writers;
+ALTER DEFAULT PRIVILEGES FOR USER schemaowner IN SCHEMA import GRANT ALL PRIVILEGES ON TABLES TO GROUP import_owners;
